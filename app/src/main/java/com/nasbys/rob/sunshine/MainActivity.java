@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,8 @@ public class MainActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        private ArrayAdapter<String> _forecastAdapter;
+        
         public PlaceholderFragment() {
         }
 
@@ -74,6 +77,13 @@ public class MainActivity extends ActionBarActivity {
                     "Sun — Sunny — 80/68"
             ));
 
+            _forecastAdapter = new ArrayAdapter<String>(
+                    getActivity(),
+                    R.layout.forecast_listview_item,
+                    R.id.forecast_listview_item,
+                    forecastData
+            );
+            
             return rootView;
         }
     }
