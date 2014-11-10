@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +85,9 @@ public class MainActivity extends ActionBarActivity {
                     forecastData
             );
             
+            ListView forecastListView = (ListView) rootView.findViewById(R.id.forecast_listview);
+            forecastListView.setAdapter(_forecastAdapter);
+
             return rootView;
         }
     }
