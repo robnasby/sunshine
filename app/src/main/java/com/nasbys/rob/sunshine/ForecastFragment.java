@@ -26,7 +26,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -58,16 +57,7 @@ public class ForecastFragment extends Fragment {
 
         new FetchForecastDataTask().execute("60126");
 
-        ArrayList<String> forecastData = new ArrayList<String>(Arrays.asList(
-                "Today — Sunny — 88/63",
-                "Tomorrow — Foggy — 70/40",
-                "Weds — Cloudy — 72/63",
-                "Thurs — Asteroids — 75/65",
-                "Fri — Heavy Rain — 65/56",
-                "Sat — HELP TRAPPED IN WEATHER STATION — 76/68",
-                "Sun — Sunny — 80/68"
-        ));
-
+        ArrayList<String> forecastData = new ArrayList<String>();
         _forecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.forecast_listview_item,
@@ -183,6 +173,16 @@ public class ForecastFragment extends Fragment {
             }
 
             return forecasts;
+        }
+
+        @Override
+        protected void onPostExecute(String[] results) {
+            if (results != null) {
+                _forecastAdapter.clear();
+                for (String result : results) {
+                    _forecastAdapter.add(result);
+                }
+            }
         }
 
         /* The date/time conversion code is going to be moved outside the asynctask later,
