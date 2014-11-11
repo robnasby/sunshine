@@ -1,0 +1,51 @@
+package com.nasbys.rob.sunshine;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * A fragment containing a forecast of the upcoming weather.
+ */
+public class ForecastFragment extends Fragment {
+
+    private ArrayAdapter<String> _forecastAdapter;
+
+    public ForecastFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.forecast_listview, container, false);
+
+        ArrayList<String> forecastData = new ArrayList<String>(Arrays.asList(
+                "Today — Sunny — 88/63",
+                "Tomorrow — Foggy — 70/40",
+                "Weds — Cloudy — 72/63",
+                "Thurs — Asteroids — 75/65",
+                "Fri — Heavy Rain — 65/56",
+                "Sat — HELP TRAPPED IN WEATHER STATION — 76/68",
+                "Sun — Sunny — 80/68"
+        ));
+
+        _forecastAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                R.layout.forecast_listview_item,
+                R.id.forecast_listview_item,
+                forecastData
+        );
+
+        ListView forecastListView = (ListView) rootView.findViewById(R.id.forecast_listview);
+        forecastListView.setAdapter(_forecastAdapter);
+
+        return rootView;
+    }
+}
