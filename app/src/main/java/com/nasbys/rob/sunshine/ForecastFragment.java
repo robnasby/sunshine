@@ -50,7 +50,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.forecast_listview, container, false);
 
-        new FetchForecastDataTask().execute();
+        new FetchForecastDataTask().execute("60126");
 
         ArrayList<String> forecastData = new ArrayList<String>(Arrays.asList(
                 "Today — Sunny — 88/63",
@@ -84,19 +84,19 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchForecastDataTask().execute();
+            new FetchForecastDataTask().execute("60126");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchForecastDataTask extends AsyncTask<Void, Void, Void> {
+    public class FetchForecastDataTask extends AsyncTask<String, Void, Void> {
 
         private final String LOG_TAG = FetchForecastDataTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -113,7 +113,7 @@ public class ForecastFragment extends Fragment {
 
                 final String dayCount = "7";
                 final String format = "json";
-                final String location = "60126";
+                final String location = params[0];
                 final String units = "metric";
 
                 // Construct the URL for the OpenWeatherMap query
