@@ -1,5 +1,6 @@
 package com.nasbys.rob.sunshine;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -105,10 +106,30 @@ public class ForecastFragment extends Fragment {
             String forecastJsonStr = null;
 
             try {
+                final String DAY_COUNT_PARAM = "cnt";
+                final String FORMAT_PARAM = "mode";
+                final String LOCATION_PARAM = "q";
+                final String UNITS_PARAM = "units";
+
+                final String dayCount = "7";
+                final String format = "json";
+                final String location = "60126";
+                final String units = "metric";
+
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are available at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=60126&units=metric&cnt=7&mode=json");
+                Uri.Builder uriBuilder = new Uri.Builder();
+                uriBuilder.scheme("http");
+                uriBuilder.authority("api.openweathermap.org");
+                uriBuilder.path("data/2.5/forecast/daily");
+                uriBuilder.appendQueryParameter(LOCATION_PARAM, location);
+                uriBuilder.appendQueryParameter(DAY_COUNT_PARAM, dayCount);
+                uriBuilder.appendQueryParameter(UNITS_PARAM, units);
+                uriBuilder.appendQueryParameter(FORMAT_PARAM, format);
+                URL url = new URL(uriBuilder.toString());
+
+                Log.v(LOG_TAG, "Forecast data URL " + url.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
