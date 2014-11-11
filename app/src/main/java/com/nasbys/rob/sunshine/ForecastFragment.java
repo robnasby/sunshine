@@ -128,8 +128,6 @@ public class ForecastFragment extends Fragment {
                 uriBuilder.appendQueryParameter(FORMAT_PARAM, format);
                 URL url = new URL(uriBuilder.toString());
 
-                Log.v(LOG_TAG, "Forecast data URL " + url.toString());
-
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -151,8 +149,6 @@ public class ForecastFragment extends Fragment {
 
                     if (buffer.length() > 0) {
                         forecastJsonStr = buffer.toString();
-
-                        Log.v(LOG_TAG, forecastJsonStr);
 
                         forecasts = getWeatherDataFromJson(forecastJsonStr, dayCount);
                     }
