@@ -1,9 +1,11 @@
 package com.nasbys.rob.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,7 +59,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.forecast_listview, container, false);
 
-        new FetchForecastDataTask().execute("60126");
+        new FetchForecastDataTask().execute(getLocation());
 
         ArrayList<String> forecastData = new ArrayList<String>();
         _forecastAdapter = new ArrayAdapter<String>(
@@ -90,11 +92,16 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchForecastDataTask().execute("60126");
+            new FetchForecastDataTask().execute(getLocation());
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getLocation() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
     }
 
     public class FetchForecastDataTask extends AsyncTask<String, Void, String[]> {
