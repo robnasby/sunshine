@@ -26,6 +26,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nasbys.rob.sunshine.MainActivity" />
         </activity>
+        <activity
+            android:name="com.nasbys.rob.sunshine.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="com.nasbys.rob.sunshine.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.nasbys.rob.sunshine.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
