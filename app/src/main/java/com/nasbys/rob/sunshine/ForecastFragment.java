@@ -59,14 +59,11 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.forecast_listview, container, false);
 
-        new FetchForecastDataTask().execute(getLocation());
-
-        ArrayList<String> forecastData = new ArrayList<String>();
         _forecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.forecast_listview_item,
                 R.id.forecast_listview_item,
-                forecastData
+                new ArrayList<String>()
         );
 
         ListView forecastListView = (ListView) rootView.findViewById(R.id.forecast_listview);
@@ -92,16 +89,23 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchForecastDataTask().execute(getLocation());
+            updateForecastData();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private String getLocation() {
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateForecastData();
+    }
+
+    private void updateForecastData() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        return preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+        String location = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+        new FetchForecastDataTask().execute(location);
     }
 
     public class FetchForecastDataTask extends AsyncTask<String, Void, String[]> {
