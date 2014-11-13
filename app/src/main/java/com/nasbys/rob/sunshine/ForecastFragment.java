@@ -217,12 +217,24 @@ public class ForecastFragment extends Fragment {
          * Prepare the weather high/lows for presentation.
          */
         private String formatHighLows(double high, double low) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            Units units = Units.valueOf(preferences.getString(getString(R.string.pref_units_key), getString(R.string.pref_units_default)));
+
+            if (units == Units.Imperial) {
+                high = convertTemperatureMetricToImperial(high);
+                low = convertTemperatureMetricToImperial(low);
+            }
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
 
             String highLowStr = roundedHigh + "/" + roundedLow;
             return highLowStr;
+        }
+
+        private double convertTemperatureMetricToImperial(double temperature) {
+            return (temperature * 9/5) + 32;
         }
 
         /**
