@@ -1,6 +1,8 @@
 package com.nasbys.rob.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -41,6 +43,19 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.action_show_location) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String location = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+
+            Uri geoLocation = Uri.parse("geo:0,0").buildUpon().appendQueryParameter("q", location).build();
+            Intent intent = new Intent(Intent.ACTION_VIEW).setData(geoLocation);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
+
             return true;
         }
 
