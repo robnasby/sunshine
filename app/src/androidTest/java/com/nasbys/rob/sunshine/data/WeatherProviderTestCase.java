@@ -45,7 +45,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         assertEquals(LocationEntry.CONTENT_ITEM_TYPE, type);
     }
 
-    public void testInsertReadDb() {
+    public void testInsertReadProvider() {
         SQLiteDatabase db = new WeatherDbHelper(mContext).getWritableDatabase();
 
         ContentValues locationValues = new ContentValues();
@@ -57,8 +57,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         long locationRowId = db.insert(LocationEntry.TABLE_NAME, null, locationValues);
         assertTrue(locationRowId != -1);
 
-        Cursor locationCursor = db.query(LocationEntry.TABLE_NAME, null, null, null, null, null, null);
-
+        Cursor locationCursor = mContext.getContentResolver().query(LocationEntry.buildLocationUri(locationRowId), null, null, null, null);
         if (locationCursor.moveToFirst()) {
             validateCursor(locationCursor, locationValues);
 

@@ -1,6 +1,7 @@
 package com.nasbys.rob.sunshine.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -30,7 +31,49 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
+        Cursor retCursor;
+
+        switch (_uriMatcher.match(uri)) {
+            case LOCATION:
+                retCursor = _dbHelper.getReadableDatabase().query(
+                        LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case LOCATION_ID:
+                String fullSelection = LocationEntry._ID + " = " + ContentUris.parseId(uri);
+                if (selection != null) fullSelection += " AND " + selection;
+                retCursor = _dbHelper.getReadableDatabase().query(
+                        LocationEntry.TABLE_NAME,
+                        projection,
+                        fullSelection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case WEATHER:
+                retCursor = null;
+                break;
+            case WEATHER_WITH_LOCATION:
+                retCursor = null;
+                break;
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                retCursor = null;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+        }
+        
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return retCursor;
     }
 
     @Override
