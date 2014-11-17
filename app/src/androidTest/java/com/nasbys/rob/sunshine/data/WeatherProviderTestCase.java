@@ -1,9 +1,10 @@
 package com.nasbys.rob.sunshine.data;
 
 import android.app.Application;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.test.ApplicationTestCase;
 
 import com.nasbys.rob.sunshine.data.WeatherContract.LocationEntry;
@@ -53,16 +54,14 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
     }
 
     public void testInsertReadProvider() {
-        SQLiteDatabase db = new WeatherDbHelper(mContext).getWritableDatabase();
-
         ContentValues locationValues = new ContentValues();
         locationValues.put(LocationEntry.COLUMN_CITY_NAME, TestData.CITY_NAME);
         locationValues.put(LocationEntry.COLUMN_LOCATION_QUERY, TestData.LOCATION);
         locationValues.put(LocationEntry.COLUMN_LATITUDE, 64.772);
         locationValues.put(LocationEntry.COLUMN_LONGITUDE, -147.355);
 
-        long locationRowId = db.insert(LocationEntry.TABLE_NAME, null, locationValues);
-        assertTrue(locationRowId != -1);
+        Uri locationUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, locationValues);
+        long locationRowId = ContentUris.parseId(locationUri);
 
         Cursor locationCursor = mContext.getContentResolver().query(LocationEntry.buildLocationUri(locationRowId), null, null, null, null);
         if (locationCursor.moveToFirst()) {
@@ -80,8 +79,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
             weatherValues.put(WeatherEntry.COLUMN_WIND_DIRECTION_DEGREES, 1.1);
             weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
 
-            long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
-            assertTrue(weatherRowId != -1);
+            mContext.getContentResolver().insert(WeatherEntry.CONTENT_URI, weatherValues);
 
             Cursor weatherCursor = mContext.getContentResolver().query(WeatherEntry.CONTENT_URI, null, null, null, null);
             if (weatherCursor.moveToFirst()) {

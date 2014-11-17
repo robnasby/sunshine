@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
@@ -126,7 +128,34 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        Uri returnUri;
+
+        final SQLiteDatabase db = _dbHelper.getWritableDatabase();
+        final int match = _uriMatcher.match(uri);
+        long id;
+
+        switch (match) {
+            case LOCATION:
+                id = db.insert(LocationEntry.TABLE_NAME, null, contentValues);
+                if (id > 0)
+                    returnUri = LocationEntry.buildLocationUri(id);
+                else
+                    throw new SQLException("Failed to insert row into " + uri);
+                break;
+            case WEATHER:
+                id = db.insert(WeatherEntry.TABLE_NAME, null, contentValues);
+                if (id > 0)
+                    returnUri = WeatherEntry.buildWeatherUri(id);
+                else
+                    throw new SQLException("Failed to insert row into " + uri);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+        }
+        
+        getContext().getContentResolver().notifyChange(returnUri, null);
+
+        return returnUri;
     }
 
     @Override
