@@ -16,6 +16,13 @@ import java.util.Set;
  * Created by robnasby on 11/17/14.
  */
 public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
+
+    public static class TestData {
+        public static String CITY_NAME = "North Pole";
+        public static String DATE = "20141205";
+        public static String LOCATION = "99705";
+    }
+
     public WeatherProviderTestCase() {
         super(Application.class);
     }
@@ -49,8 +56,8 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         SQLiteDatabase db = new WeatherDbHelper(mContext).getWritableDatabase();
 
         ContentValues locationValues = new ContentValues();
-        locationValues.put(LocationEntry.COLUMN_CITY_NAME, "North Pole");
-        locationValues.put(LocationEntry.COLUMN_LOCATION_QUERY, "99705");
+        locationValues.put(LocationEntry.COLUMN_CITY_NAME, TestData.CITY_NAME);
+        locationValues.put(LocationEntry.COLUMN_LOCATION_QUERY, TestData.LOCATION);
         locationValues.put(LocationEntry.COLUMN_LATITUDE, 64.772);
         locationValues.put(LocationEntry.COLUMN_LONGITUDE, -147.355);
 
@@ -63,7 +70,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
 
             ContentValues weatherValues = new ContentValues();
             weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-            weatherValues.put(WeatherEntry.COLUMN_DATETEXT, "20141205");
+            weatherValues.put(WeatherEntry.COLUMN_DATETEXT, TestData.DATE);
             weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
             weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
             weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
@@ -76,15 +83,55 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
             long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
             assertTrue(weatherRowId != -1);
 
-            Cursor weatherCursor = db.query(
-                    WeatherEntry.TABLE_NAME, null, null, null, null, null, null);
-
+            Cursor weatherCursor = mContext.getContentResolver().query(WeatherEntry.CONTENT_URI, null, null, null, null);
             if (weatherCursor.moveToFirst()) {
                 validateCursor(weatherCursor, weatherValues);
             } else {
                 fail("No values returned  =(");
             }
+            weatherCursor.close();
 
+            weatherCursor = mContext.getContentResolver().query(
+                    WeatherEntry.buildWeatherLocationUri(TestData.LOCATION),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            if (weatherCursor.moveToFirst()) {
+                validateCursor(weatherCursor, weatherValues);
+            } else {
+                fail("No values returned  =(");
+            }
+            weatherCursor.close();
+
+            weatherCursor = mContext.getContentResolver().query(
+                    WeatherEntry.buildWeatherLocationStartDateUri(TestData.LOCATION, TestData.DATE),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            if (weatherCursor.moveToFirst()) {
+                validateCursor(weatherCursor, weatherValues);
+            } else {
+                fail("No values returned  =(");
+            }
+            weatherCursor.close();
+
+            weatherCursor = mContext.getContentResolver().query(
+                    WeatherEntry.buildWeatherLocationDateUri(TestData.LOCATION, TestData.DATE),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            if (weatherCursor.moveToFirst()) {
+                validateCursor(weatherCursor, weatherValues);
+            } else {
+                fail("No values returned  =(");
+            }
+            weatherCursor.close();
         } else {
             fail("No values returned  =(");
         }

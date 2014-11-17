@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import com.nasbys.rob.sunshine.data.WeatherContract.LocationEntry;
@@ -22,6 +23,25 @@ public class WeatherProvider extends ContentProvider {
 
     private static final UriMatcher _uriMatcher = buildUriMatcher();
     private static WeatherDbHelper _dbHelper;
+
+    private static final SQLiteQueryBuilder _weatherByLocationSettingQueryBuilder;
+    static {
+        _weatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
+        _weatherByLocationSettingQueryBuilder.setTables(
+                WeatherEntry.TABLE_NAME + " INNER JOIN " + LocationEntry.TABLE_NAME +
+                        " ON " + WeatherEntry.TABLE_NAME + "." + WeatherEntry.COLUMN_LOC_KEY +
+                        " = " + LocationEntry.TABLE_NAME + "." + LocationEntry._ID
+        );
+    }
+
+    private static final String _locationSelection =
+            LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_QUERY + " = ? ";
+    private static final String _locationWithStartDateSelection =
+            LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_QUERY + " = ?" +
+                    " AND " + WeatherEntry.COLUMN_DATETEXT + " >= ? ";
+    private static final String _locationWithDateSelection =
+            LocationEntry.TABLE_NAME + "." + LocationEntry.COLUMN_LOCATION_QUERY + " = ?" +
+                    " AND " + WeatherEntry.COLUMN_DATETEXT + " = ? ";
 
     @Override
     public boolean onCreate() {
@@ -59,13 +79,21 @@ public class WeatherProvider extends ContentProvider {
                 );
                 break;
             case WEATHER:
-                retCursor = null;
+                retCursor = _dbHelper.getReadableDatabase().query(
+                        WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             case WEATHER_WITH_LOCATION:
-                retCursor = null;
+                retCursor = getWeatherByLocation(uri, projection, sortOrder);
                 break;
             case WEATHER_WITH_LOCATION_AND_DATE:
-                retCursor = null;
+                retCursor = getWeatherByLocationAndDate(uri, projection, sortOrder);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown URI: " + uri);
@@ -125,5 +153,44 @@ public class WeatherProvider extends ContentProvider {
         matcher.addURI(authority, locationBasePath + "/#", LOCATION_ID);
 
         return matcher;
+    }
+
+    private Cursor getWeatherByLocation(Uri uri, String[] projection, String sortOrder) {
+        String location = WeatherEntry.getLocationFromUri(uri);
+        String startDate = WeatherEntry.getStartDateFromUri(uri);
+
+        String selection;
+        String[] selectionArgs;
+
+        if (startDate == null) {
+            selection = _locationSelection;
+            selectionArgs = new String[]{ location };
+        } else {
+            selection = _locationWithStartDateSelection;
+            selectionArgs = new String[] { location, startDate };
+        }
+
+        return _weatherByLocationSettingQueryBuilder.query(_dbHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getWeatherByLocationAndDate(Uri uri, String[] projection, String sortOrder) {
+        String location = WeatherEntry.getLocationFromUri(uri);
+        String date = WeatherEntry.getDateFromUri(uri);
+
+        return _weatherByLocationSettingQueryBuilder.query(_dbHelper.getReadableDatabase(),
+                projection,
+                _locationWithDateSelection,
+                new String[] { location, date },
+                null,
+                null,
+                sortOrder
+        );
     }
 }
