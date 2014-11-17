@@ -158,14 +158,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
     }
 
     private ContentValues getLocationContentValues() {
-        ContentValues values = new ContentValues();
-
-        values.put(LocationEntry.COLUMN_CITY_NAME, TestData.CITY_NAME);
-        values.put(LocationEntry.COLUMN_LOCATION_QUERY, TestData.LOCATION);
-        values.put(LocationEntry.COLUMN_LATITUDE, 64.772);
-        values.put(LocationEntry.COLUMN_LONGITUDE, -147.355);
-
-        return values;
+        return LocationEntry.makeContentValues(TestData.LOCATION, TestData.CITY_NAME, 64.772, -147.355);
     }
 
     private ContentValues getWeatherContentValues(long locationId) {

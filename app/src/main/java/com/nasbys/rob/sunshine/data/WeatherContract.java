@@ -1,6 +1,7 @@
 package com.nasbys.rob.sunshine.data;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -36,6 +37,17 @@ public class WeatherContract {
 
         public static Uri buildLocationUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static ContentValues makeContentValues(String location, String cityName, double latitude, double longitude) {
+            ContentValues values = new ContentValues();
+
+            values.put(LocationEntry.COLUMN_CITY_NAME, cityName);
+            values.put(LocationEntry.COLUMN_LATITUDE, latitude);
+            values.put(LocationEntry.COLUMN_LOCATION_QUERY, location);
+            values.put(LocationEntry.COLUMN_LONGITUDE, longitude);
+
+            return values;
         }
     }
 
