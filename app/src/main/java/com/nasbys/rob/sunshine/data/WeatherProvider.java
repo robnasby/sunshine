@@ -159,8 +159,13 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        int deleteCount = _dbHelper.getWritableDatabase().delete(getTableNameForUri(uri), selection, selectionArgs);
+
+        if (selection == null || deleteCount != 0)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        return deleteCount;
     }
 
     @Override
@@ -182,6 +187,24 @@ public class WeatherProvider extends ContentProvider {
         matcher.addURI(authority, locationBasePath + "/#", LOCATION_ID);
 
         return matcher;
+    }
+
+    private String getTableNameForUri(Uri uri) {
+        String tableName;
+
+        final int match = _uriMatcher.match(uri);
+        switch (match) {
+            case LOCATION:
+                tableName = LocationEntry.TABLE_NAME;
+                break;
+            case WEATHER:
+                tableName = WeatherEntry.TABLE_NAME;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+        }
+
+        return tableName;
     }
 
     private Cursor getWeatherByLocation(Uri uri, String[] projection, String sortOrder) {

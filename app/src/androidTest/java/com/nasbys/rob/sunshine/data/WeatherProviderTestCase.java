@@ -28,8 +28,16 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         super(Application.class);
     }
 
-    public void testDeleteDb() throws Throwable {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    public void testDeleteAllRows() {
+        mContext.getContentResolver().delete(WeatherEntry.CONTENT_URI, null, null);
+        mContext.getContentResolver().delete(LocationEntry.CONTENT_URI, null, null);
+
+        Cursor cursor = mContext.getContentResolver().query(WeatherEntry.CONTENT_URI, null, null, null, null);
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+        cursor = mContext.getContentResolver().query(LocationEntry.CONTENT_URI, null, null, null, null);
+        assertEquals(0, cursor.getCount());
+        cursor.close();
     }
 
     public void testGetType() {
