@@ -6,6 +6,9 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.nasbys.rob.sunshine.data.WeatherContract.LocationEntry;
+import com.nasbys.rob.sunshine.data.WeatherContract.WeatherEntry;
+
 /**
  * Created by robnasby on 11/14/14.
  */
@@ -31,7 +34,24 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) { return null; }
+    public String getType(Uri uri) {
+        final int match = _uriMatcher.match(uri);
+
+        switch (match) {
+            case LOCATION:
+                return LocationEntry.CONTENT_TYPE;
+            case LOCATION_ID:
+                return LocationEntry.CONTENT_ITEM_TYPE;
+            case WEATHER:
+                return WeatherEntry.CONTENT_TYPE;
+            case WEATHER_WITH_LOCATION:
+                return WeatherEntry.CONTENT_TYPE;
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                return WeatherEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown URI: " + uri);
+        }
+    }
 
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
