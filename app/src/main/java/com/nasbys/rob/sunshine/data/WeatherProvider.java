@@ -169,8 +169,13 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+        int updateCount = _dbHelper.getWritableDatabase().update(getTableNameForUri(uri), contentValues, selection, selectionArgs);
+
+        if (selection == null || updateCount != 0)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        return updateCount;
     }
 
     private static UriMatcher buildUriMatcher() {

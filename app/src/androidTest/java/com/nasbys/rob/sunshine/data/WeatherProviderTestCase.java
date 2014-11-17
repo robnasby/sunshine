@@ -62,12 +62,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
     }
 
     public void testInsertReadProvider() {
-        ContentValues locationValues = new ContentValues();
-        locationValues.put(LocationEntry.COLUMN_CITY_NAME, TestData.CITY_NAME);
-        locationValues.put(LocationEntry.COLUMN_LOCATION_QUERY, TestData.LOCATION);
-        locationValues.put(LocationEntry.COLUMN_LATITUDE, 64.772);
-        locationValues.put(LocationEntry.COLUMN_LONGITUDE, -147.355);
-
+        ContentValues locationValues = getLocationContentValues();
         Uri locationUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, locationValues);
         long locationRowId = ContentUris.parseId(locationUri);
 
@@ -75,18 +70,7 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         if (locationCursor.moveToFirst()) {
             validateCursor(locationCursor, locationValues);
 
-            ContentValues weatherValues = new ContentValues();
-            weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-            weatherValues.put(WeatherEntry.COLUMN_DATETEXT, TestData.DATE);
-            weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-            weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
-            weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
-            weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
-            weatherValues.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
-            weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
-            weatherValues.put(WeatherEntry.COLUMN_WIND_DIRECTION_DEGREES, 1.1);
-            weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
-
+            ContentValues weatherValues = getWeatherContentValues(locationRowId);
             mContext.getContentResolver().insert(WeatherEntry.CONTENT_URI, weatherValues);
 
             Cursor weatherCursor = mContext.getContentResolver().query(WeatherEntry.CONTENT_URI, null, null, null, null);
@@ -141,6 +125,64 @@ public class WeatherProviderTestCase extends ApplicationTestCase<Application> {
         } else {
             fail("No values returned  =(");
         }
+    }
+
+    public void testUpdateLocation() {
+        testDeleteAllRows();
+
+        ContentValues values = getLocationContentValues();
+
+        Uri uri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, values);
+        long id = ContentUris.parseId(uri);
+
+        assertTrue(id != -1);
+
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(LocationEntry._ID, id);
+        updatedValues.put(LocationEntry.COLUMN_CITY_NAME, "Santa's Village");
+
+        int updateCount = mContext.getContentResolver().update(LocationEntry.CONTENT_URI,
+                updatedValues,
+                LocationEntry._ID + " = ?",
+                new String[] { Long.toString(id) }
+        );
+        assertEquals(1, updateCount);
+
+        Cursor cursor = mContext.getContentResolver().query(LocationEntry.buildLocationUri(id), null, null, null, null);
+        if (cursor.moveToFirst()) {
+            validateCursor(cursor, updatedValues);
+        } else {
+            fail("No values returned  =(");
+        }
+        cursor.close();
+    }
+
+    private ContentValues getLocationContentValues() {
+        ContentValues values = new ContentValues();
+
+        values.put(LocationEntry.COLUMN_CITY_NAME, TestData.CITY_NAME);
+        values.put(LocationEntry.COLUMN_LOCATION_QUERY, TestData.LOCATION);
+        values.put(LocationEntry.COLUMN_LATITUDE, 64.772);
+        values.put(LocationEntry.COLUMN_LONGITUDE, -147.355);
+
+        return values;
+    }
+
+    private ContentValues getWeatherContentValues(long locationId) {
+        ContentValues values = new ContentValues();
+
+        values.put(WeatherEntry.COLUMN_LOC_KEY, locationId);
+        values.put(WeatherEntry.COLUMN_DATETEXT, TestData.DATE);
+        values.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+        values.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
+        values.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
+        values.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
+        values.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
+        values.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+        values.put(WeatherEntry.COLUMN_WIND_DIRECTION_DEGREES, 1.1);
+        values.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
+
+        return values;
     }
 
     private static void validateCursor(Cursor cursor, ContentValues expectedValues) {
